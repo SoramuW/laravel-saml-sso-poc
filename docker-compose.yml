@@ -1,0 +1,97 @@
+name: laravel-saml-sso-poc
+services:
+  init:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: laravel-saml-php:dev
+    command: ["php", "docker/php/init.php"]
+    environment:
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      SAML_SP_ENTITY_ID: ${SAML_SP_ENTITY_ID:-laravel-saml}
+      SAML_SP_ACS_URL: ${SAML_SP_ACS_URL:-http://localhost:8000/saml/acs}
+      SAML_SP_SLS_URL: ${SAML_SP_SLS_URL:-http://localhost:8000/saml/sls}
+    volumes:
+      - .:/var/www/html
+      - realm_import:/realm-import
+  db:
+    image: mysql:8.4.11
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel_saml}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-local-root-only}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.0
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-local-admin-only}
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:-http://localhost:8081}
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      - realm_import:/opt/keycloak/data/import:ro
+      - keycloak_data:/opt/keycloak/data
+    depends_on:
+      init:
+        condition: service_completed_successfully
+  app:
+    image: laravel-saml-php:dev
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    command: ["sh", "docker/php/entrypoint.sh"]
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+    ports:
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
+    volumes:
+      - .:/var/www/html
+      - vendor_data:/var/www/html/vendor
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://127.0.0.1:8000/up') === false ? 1 : 0);"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+  browser:
+    profiles: ["test"]
+    image: mcr.microsoft.com/playwright:v1.58.2-noble
+    working_dir: /work
+    command:
+      - sh
+      - -c
+      - npm install --prefix /tmp/saml-browser playwright@1.58.2 --no-audit --no-fund && NODE_PATH=/tmp/saml-browser/node_modules node scripts/browser-smoke.cjs
+    environment:
+      APP_TEST_URL: ${APP_URL:-http://localhost:8000}
+      BROWSER_HOST_GATEWAY: host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/work
+    depends_on:
+      app:
+        condition: service_healthy
+    shm_size: 1gb
+volumes:
+  mysql_data:
+  keycloak_data:
+  realm_import:
+  vendor_data:
