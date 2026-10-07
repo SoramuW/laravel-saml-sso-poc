@@ -4,6 +4,12 @@ LaravelをSAML 2.0のService Provider（SP）として実装し、HPE IceWall Fe
 
 **Laravel / MySQL / Keycloakの起動、実ブラウザでのSAMLログイン・属性表示・Single Logout・Metadata取得を確認済みです。** IceWall実機との接続とWindows上での実行は未検証です。検証環境・結果・制限は[検証記録](docs/VERIFICATION.md)に記載しています。
 
+## 実装手順・他システムへの適用
+
+- [実装ガイド](docs/IMPLEMENTATION_GUIDE.md)：段階ごとの作業、読むコード、完了条件、次に試すこと、記事の章立て。
+- [導入チェックシート](docs/INTEGRATION_CHECKLIST.md)：導入先のIdP、ユーザー照合、権限、試験結果、残課題を記入するテンプレート。
+- [検証記録](docs/VERIFICATION.md)：このPoCで確認済みの結果と、Windows/IceWallなど未検証の項目。
+
 ## バージョンと構成
 
 | ソフトウェア | 使用バージョン |
@@ -78,7 +84,7 @@ cp .env.example .env
 | SP Metadata | http://localhost:8000/saml/metadata |
 | SAMLログアウト開始 | http://localhost:8000/saml/logout |
 | Single Logout応答先 | http://localhost:8000/saml/sls |
-| Keycloak管理画面 | http://localhost:8081/admin/ |
+| Keycloak管理画面 | http://localhost:18001/admin/ |
 
 | ユーザー | ID | パスワード |
 | --- | --- | --- |
@@ -157,15 +163,15 @@ LaravelからMySQLには`DB_HOST=db`で接続します。ブラウザ向けURL�
 | `DB_HOST` / `DB_PORT` | `db` / `3306` |
 | `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | `laravel_saml` / `laravel` / `laravel` |
 | `DB_ROOT_PASSWORD` | MySQLのローカル開発用rootパスワード |
-| `KEYCLOAK_PORT` / `KEYCLOAK_PUBLIC_URL` | `8081` / `http://localhost:8081` |
+| `KEYCLOAK_PORT` / `KEYCLOAK_PUBLIC_URL` | `18001` / `http://localhost:18001` |
 | `KEYCLOAK_ADMIN_USERNAME` / `KEYCLOAK_ADMIN_PASSWORD` | 管理者のローカル開発用資格情報 |
 | `SAML_PROVIDER` | `keycloak`または`icewall`。認証ロジックは共通 |
 | `SAML_SP_ENTITY_ID` | `laravel-saml` |
 | `SAML_SP_ACS_URL` / `SAML_SP_SLS_URL` | SPの公開ACS / Single Logout URL |
 | `SAML_SP_CERT_PATH` / `SAML_SP_KEY_PATH` | `storage/saml/sp.pem` / `storage/saml/sp.key` |
 | `SAML_NAME_ID_FORMAT` | NameID形式のURI。標準はunspecified |
-| `SAML_IDP_ENTITY_ID` | `http://localhost:8081/realms/saml-demo` |
-| `SAML_IDP_SSO_URL` / `SAML_IDP_SLO_URL` | `http://localhost:8081/realms/saml-demo/protocol/saml` |
+| `SAML_IDP_ENTITY_ID` | `http://localhost:18001/realms/saml-demo` |
+| `SAML_IDP_SSO_URL` / `SAML_IDP_SLO_URL` | `http://localhost:18001/realms/saml-demo/protocol/saml` |
 | `SAML_IDP_CERT_PATH` | `storage/saml/keycloak-idp.pem` |
 | `SAML_LOCAL_METADATA_URL` | 初回ローカル証明書取得専用。固定のCompose内部URLのみ許可 |
 | `SAML_AUTO_CREATE_USER` | `true`。未登録ユーザーの作成を許可 |

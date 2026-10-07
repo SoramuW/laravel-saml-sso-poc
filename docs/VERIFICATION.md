@@ -77,6 +77,10 @@ docker compose -p laravel-saml-clean-check --profile test run --rm browser
 
 既存プロジェクトとのポート競合を避けるため、メイン検証ではLaravelを18000、独立した新規環境ではLaravelを18002 / Keycloakを18081で公開しました。初回起動前に`.env.example`をコピーし、公開URLも同じポートへ変更しています。
 
+## 公開ポート変更後の確認
+
+Keycloakの公開ポートを18001へ変更し、IdPのEntity ID・SSO/SLO URLと既存のローカルユーザーのIssuerを更新しました。Docker内ブラウザでMetadata、署名付きログイン、属性表示、両側Single Logoutの成功を再確認しています。
+
 ## 実際のアクセス先
 
 メイン検証環境は作業ディレクトリの`.env`に18000を設定して起動しています。
@@ -89,7 +93,7 @@ docker compose -p laravel-saml-clean-check --profile test run --rm browser
 | Metadata | http://localhost:18000/saml/metadata |
 | Logout | http://localhost:18000/saml/logout |
 | SLS | http://localhost:18000/saml/sls |
-| Keycloak | http://localhost:8081/admin/ |
+| Keycloak | http://localhost:18001/admin/ |
 
 テストユーザー: `testuser` / `local-test-only`
 

@@ -49,7 +49,7 @@ class SamlValidationTest extends TestCase
             'saml.sp.entity_id' => 'laravel-saml',
             'saml.sp.acs_url' => 'http://localhost:18000/saml/acs',
             'saml.sp.sls_url' => 'http://localhost:18000/saml/sls',
-            'saml.idp.entity_id' => 'http://localhost:8081/realms/saml-demo',
+            'saml.idp.entity_id' => 'http://localhost:18001/realms/saml-demo',
         ]);
         $_SERVER['HTTP_HOST'] = 'localhost:18000';
         $_SERVER['SERVER_PORT'] = '18000';
@@ -132,7 +132,7 @@ class SamlValidationTest extends TestCase
     {
         $now = gmdate('Y-m-d\TH:i:s\Z');
         $correlation = $correlated ? 'InResponseTo="_logout-request"' : '';
-        $xml = '<p:LogoutResponse xmlns:p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:a="urn:oasis:names:tc:SAML:2.0:assertion" ID="_logout-response" Version="2.0" IssueInstant="'.$now.'" Destination="http://localhost:18000/saml/sls" '.$correlation.'><a:Issuer>http://localhost:8081/realms/saml-demo</a:Issuer><p:Status><p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></p:Status></p:LogoutResponse>';
+        $xml = '<p:LogoutResponse xmlns:p="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:a="urn:oasis:names:tc:SAML:2.0:assertion" ID="_logout-response" Version="2.0" IssueInstant="'.$now.'" Destination="http://localhost:18000/saml/sls" '.$correlation.'><a:Issuer>http://localhost:18001/realms/saml-demo</a:Issuer><p:Status><p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></p:Status></p:LogoutResponse>';
         $encoded = base64_encode(gzdeflate($xml));
         $auth = app(SamlService::class)->auth();
 

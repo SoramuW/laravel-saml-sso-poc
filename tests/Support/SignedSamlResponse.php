@@ -9,7 +9,7 @@ class SignedSamlResponse
     public static function make(string $key, string $cert, array $overrides = [], bool $sign = true): string
     {
         $data = array_merge([
-            'issuer' => 'http://localhost:8081/realms/saml-demo',
+            'issuer' => 'http://localhost:18001/realms/saml-demo',
             'audience' => 'laravel-saml',
             'destination' => 'http://localhost:18000/saml/acs',
             'recipient' => 'http://localhost:18000/saml/acs',

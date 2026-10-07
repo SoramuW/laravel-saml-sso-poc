@@ -13,9 +13,9 @@ return [
         'name_id_format' => env('SAML_NAME_ID_FORMAT', 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'),
     ],
     'idp' => [
-        'entity_id' => env('SAML_IDP_ENTITY_ID', 'http://localhost:8081/realms/saml-demo'),
-        'sso_url' => env('SAML_IDP_SSO_URL', 'http://localhost:8081/realms/saml-demo/protocol/saml'),
-        'slo_url' => env('SAML_IDP_SLO_URL', 'http://localhost:8081/realms/saml-demo/protocol/saml'),
+        'entity_id' => env('SAML_IDP_ENTITY_ID', 'http://localhost:18001/realms/saml-demo'),
+        'sso_url' => env('SAML_IDP_SSO_URL', 'http://localhost:18001/realms/saml-demo/protocol/saml'),
+        'slo_url' => env('SAML_IDP_SLO_URL', 'http://localhost:18001/realms/saml-demo/protocol/saml'),
         'cert_path' => env('SAML_IDP_CERT_PATH', 'storage/saml/keycloak-idp.pem'),
     ],
     'attributes' => [
